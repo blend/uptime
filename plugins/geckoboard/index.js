@@ -84,8 +84,6 @@ exports.initWebApp = function(options) {
   var dashboard = options.dashboard;
 
   dashboard.on('checkEdit', function(type, check, partial) {
-    var statusUrl = '';
-    var availabilityUrl = '';
     var geckoboard_options = check.getPollerParam("geckoboard_options") || {};
     partial.push(ejs.render(template, { locals: { check: check, geckoboard_options: geckoboard_options } }));
   });
