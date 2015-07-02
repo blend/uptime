@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 var moment   = require('moment');
 var async    = require('async');
+var _ = require('underscore');
 
 // models dependencies
 var Ping             = require('../models/ping');
@@ -249,6 +250,42 @@ Check.methods.updateQos = function(callback) {
     check.qos = result[0].value;
     check.markModified('qos');
     check.save(callback);
+  });
+};
+
+Check.methods.getAvailabilityInInterval = function(begin, end, callback) {
+  var query = [
+    {
+      $match: {
+        check: this._id, timestamp: { $gte: begin, $lte: end } }
+    },
+    {
+      $group: {
+        _id : "$isUp",
+        count: { $sum: 1 }
+      }
+    }
+  ];
+  this.db.model('Ping').aggregate(query, function(err, result){
+    if (err) {
+      callback(err);
+      return;
+    } else {
+      if (result && result.length > 0) {
+        var totalCount = result.map(function(a){
+          return a.count;
+        }).reduce(function(a, b) {
+          return a + b;
+        });
+        var successData = result.filter(function(datum) {
+          return datum._id;
+        });
+        var successCount = !!successData ? successData[0].count : 0;
+        callback(null, { availability: successCount/totalCount });
+      } else {
+        callback(null, {});
+      }
+    }
   });
 };
 

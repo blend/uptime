@@ -1,0 +1,22 @@
+<fieldset>
+  <div class="control-group">
+    <label class="control-label" for="check[geckoboard_options][availability_url]">Geckoboard Availability Widget URL</label>
+    <div class="controls">
+    <input type="text" name="check[geckoboard_options][availability_url]" class="span8" placeholder="https://push.geckoboard.com/v1/send/<Widget Key>"
+      value="<%= geckoboard_options.availability_url || ''  %>" />
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="check[geckoboard_options][status_url]">Geckoboard Status Widget URL</label>
+    <div class="controls">
+    <input type="text" name="check[geckoboard_options][status_url]" class="span8" placeholder="https://push.geckoboard.com/v1/send/<Widget Key>"
+           value="<%= geckoboard_options.status_url  || ''%>" />
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="check[geckoboard_options][send_last_downtime]">Send last downtime to widget? (If checked the geckoboard widget will display the time of the last outage)</label>
+    <div class="controls">
+        <input type="checkbox" name="check[geckoboard_options][send_last_downtime]" <%= !!geckoboard_options.send_last_downtime ? "checked" : "" %> /> 
+    </div>
+  </div>
+</fieldset>

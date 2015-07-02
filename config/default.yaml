@@ -5,7 +5,7 @@ mongodb:
   database: uptime
   user:     root 
   password:
-  connectionString:       # alternative to setting server, database, user and password separately
+  connectionString:       "mongodb://localhost:27017/uptime"# alternative to setting server, database, user and password separately
 
 monitor:
   name:                   origin
@@ -23,8 +23,9 @@ autoStartMonitor: true
 
 plugins:
   - ./plugins/console
-  - ./plugins/patternMatcher
-  - ./plugins/httpOptions
+  # - ./plugins/patternMatcher
+  # - ./plugins/httpOptions
+  - ./plugins/geckoboard
   # - ./plugins/email
   # - ./plugins/basicAuth
 
@@ -53,4 +54,8 @@ verbose: true # only used in dev
 webPageTest:
   server: 'http://www.webpagetest.org'
   key:
-  testOptions: 
+  testOptions:
+
+geckoboard:
+  api_key: 
+  reporting_interval: 60 # in seconds
