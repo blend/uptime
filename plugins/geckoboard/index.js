@@ -9,6 +9,7 @@ var _ = require('underscore');
 var template = fs.readFileSync(__dirname + '/views/_detailsEdit.ejs', 'utf8');
 var api_key = config.geckoboard.api_key;
 var reporting_interval = config.geckoboard.reporting_interval * 1000;
+var last_updated_widget_url = config.geckoboard.update_ts_widget_url;
 
 function reportStatus(url, status, responseTime, lastDownTimestamp) {
   var statusMessage = status ? "Up" : "Down";
@@ -28,6 +29,13 @@ function reportAvailability(url, availability) {
   var postData = {
     item: [{ text: "(30 days)", value: availability, prefix: "%" }]
   };
+  postToGeckoboard(url, postData);
+}
+
+function reportLastUpdate(url) {
+  var nowText = moment().format("MMM D, h:mma");
+  var lastUpdatedText = "<span style=\"color:grey;font-size:20px\">Last updated " + nowText + "</span>";
+  var postData = { item: [ { text: lastUpdatedText, type: 0 } ] };
   postToGeckoboard(url, postData);
 }
 
@@ -52,7 +60,7 @@ function postToGeckoboard(url, postData) {
 exports.initMonitor = function() {
   setInterval(function(){
     Check.find().exec(function(err, checks){
-      if (!err) return;
+      if (err) return;
       _.each(checks, function(check) {
         var geckoboardOptions = check.getPollerParam("geckoboard_options");
         if (!geckoboardOptions) return;
@@ -76,6 +84,9 @@ exports.initMonitor = function() {
           reportStatus(statusUrl, check.isUp, check.qos.responseTime, lastDowntimestamp);
         }
       });
+      if (last_updated_widget_url) {
+        reportLastUpdate(last_updated_widget_url);
+      }
     });
   }, reporting_interval);
 };

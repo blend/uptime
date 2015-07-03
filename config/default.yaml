@@ -59,3 +59,4 @@ webPageTest:
 geckoboard:
   api_key: 
   reporting_interval: 60 # in seconds
+  update_ts_widget_url:  # url of a text widget to publish a 'last updated' message
