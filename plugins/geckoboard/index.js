@@ -46,7 +46,7 @@ function postToGeckoboard(url, postData) {
     if (err || httpResponse.statusCode !== 200) {
       console.error("Posting data to geckoboard failed");
       if (err) {
-        console.err(err);
+        console.log(err);
       } else {
         console.log("Got reponse code " + httpResponse.statusCode);
         console.log(body);
