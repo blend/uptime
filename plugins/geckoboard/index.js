@@ -1,6 +1,7 @@
 var Check = require('../../models/check');
 var request = require('request');
 var moment = require('moment');
+var momentTz = require('moment-timezone');
 var fs = require('fs');
 var ejs = require('ejs');
 var config = require('config');
@@ -10,12 +11,13 @@ var template = fs.readFileSync(__dirname + '/views/_detailsEdit.ejs', 'utf8');
 var api_key = config.geckoboard.api_key;
 var reporting_interval = config.geckoboard.reporting_interval * 1000;
 var last_updated_widget_url = config.geckoboard.update_ts_widget_url;
+var timezone = "America/Los_Angeles";
 
 function reportStatus(url, status, responseTime, lastDownTimestamp) {
   var statusMessage = status ? "Up" : "Down";
   var downtimeMessage;
   if (lastDownTimestamp) {
-    downtimeMessage = moment(lastDownTimestamp).format("MMMM D, h:mma");
+    downtimeMessage = momentTz(lastDownTimestamp).tz(timezone).format("MMMM D, h:mma");
   }
   var postData = {
     status: statusMessage,
@@ -33,7 +35,7 @@ function reportAvailability(url, availability) {
 }
 
 function reportLastUpdate(url) {
-  var nowText = moment().format("MMM D, h:mma");
+  var nowText = momentTz().tz(timezone).format("MMM D, h:mma");
   var lastUpdatedText = "<span style=\"color:grey;font-size:20px\">Last updated " + nowText + "</span>";
   var postData = { item: [ { text: lastUpdatedText, type: 0 } ] };
   postToGeckoboard(url, postData);
