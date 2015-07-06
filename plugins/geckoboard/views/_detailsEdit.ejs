@@ -1,3 +1,4 @@
+<h3 class="pagination-centered"">Geckoboard Options</h3>
 <fieldset>
   <div class="control-group">
     <label class="control-label" for="check[geckoboard_options][availability_url]">Geckoboard Availability Widget URL</label>
@@ -14,7 +15,7 @@
     </div>
   </div>
   <div class="control-group">
-    <label class="control-label" for="check[geckoboard_options][send_last_downtime]">Send last downtime to widget? (If checked the geckoboard widget will display the time of the last outage)</label>
+    <label class="control-label" for="check[geckoboard_options][send_last_downtime]">Send last downtime to widget?</label>
     <div class="controls">
         <input type="checkbox" name="check[geckoboard_options][send_last_downtime]" <%= !!geckoboard_options.send_last_downtime ? "checked" : "" %> /> 
     </div>
