@@ -93,10 +93,6 @@ function reportToGeckoBoard() {
   });
 };
 
-exports.initMonitor = function() {
-  setInterval(reportToGeckoBoard, config.reporting_interval * 1000);
-};
-
 exports.initWebApp = function(options) {
   var dashboard = options.dashboard;
 
@@ -109,4 +105,5 @@ exports.initWebApp = function(options) {
     if (!dirtyCheck.geckoboard_options) return;
     checkDocument.setPollerParam('geckoboard_options', dirtyCheck.geckoboard_options);
   });
+  setInterval(reportToGeckoBoard, config.reporting_interval * 1000); 
 };
