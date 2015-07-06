@@ -20,9 +20,9 @@ autoStartMonitor: true
 plugins:
   - ./plugins/console
   - ./plugins/geckoboard
-  - ./plugins/pagerduty
+  # - ./plugins/pagerduty
   
 geckoboard:
   api_key: < geckoboard API key >
   reporting_interval: 60 # in seconds
-  update_ts_widget_url: < geckoboard text widget url for last update > # url of a text widget to publish a 'last updated' message
+  update_ts_widget_urls:  # sequence of urls of text widgets to publish a 'last updated' message

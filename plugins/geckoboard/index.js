@@ -4,20 +4,16 @@ var moment = require('moment');
 var momentTz = require('moment-timezone');
 var fs = require('fs');
 var ejs = require('ejs');
-var config = require('config');
 var _ = require('underscore');
+var config = require('config').geckoboard;
 
 var template = fs.readFileSync(__dirname + '/views/_detailsEdit.ejs', 'utf8');
-var api_key = config.geckoboard.api_key;
-var reporting_interval = config.geckoboard.reporting_interval * 1000;
-var last_updated_widget_url = config.geckoboard.update_ts_widget_url;
-var timezone = "America/Los_Angeles";
 
 function reportStatus(url, status, responseTime, lastDownTimestamp) {
   var statusMessage = status ? "Up" : "Down";
   var downtimeMessage;
   if (lastDownTimestamp) {
-    downtimeMessage = momentTz(lastDownTimestamp).tz(timezone).format("MMMM D, h:mma");
+    downtimeMessage = momentTz(lastDownTimestamp).tz(config.timezone).format("MMMM D, h:mma");
   }
   var postData = {
     status: statusMessage,
@@ -35,14 +31,14 @@ function reportAvailability(url, availability) {
 }
 
 function reportLastUpdate(url) {
-  var nowText = momentTz().tz(timezone).format("MMM D, h:mma");
+  var nowText = momentTz().tz(config.timezone).format("MMM D, h:mma");
   var lastUpdatedText = "<span style=\"color:grey;font-size:20px\">Last updated " + nowText + "</span>";
   var postData = { item: [ { text: lastUpdatedText, type: 0 } ] };
   postToGeckoboard(url, postData);
 }
 
 function postToGeckoboard(url, postData) {
-  var postObj = { api_key: api_key, data: postData };
+  var postObj = { api_key: config.api_key, data: postData };
   console.log("Posting to geckoboard", url, JSON.stringify(postData));
   request.post(url, { json: true, body: postObj }, function(err,httpResponse,body){
     if (err || httpResponse.statusCode !== 200) {
@@ -60,38 +56,45 @@ function postToGeckoboard(url, postData) {
   });
 }
 
-exports.initMonitor = function() {
-  setInterval(function(){
-    Check.find().exec(function(err, checks){
-      if (err) return;
-      _.each(checks, function(check) {
-        var geckoboardOptions = check.getPollerParam("geckoboard_options");
-        if (!geckoboardOptions) return;
-        var availabilityUrl = geckoboardOptions.availability_url;
-        if (availabilityUrl) {
-          var monthAgo = moment().subtract(30, 'days').toDate();;
-          var now = new Date();
-          check.getAvailabilityInInterval(monthAgo, now, function(err, data){
-            if (err) return;
-            reportAvailability(availabilityUrl, data.availability*100);
-          });
+function reportToGeckoBoard() {
+  Check.find({ "pollerParams.geckoboard_options": { $exists : true } }, function(err, checks) {
+    if (err) return;
+    
+    _.each(checks, function(check) {
+      var geckoboardOptions = check.getPollerParam("geckoboard_options");
+      if (!geckoboardOptions) return;
+      
+      var availabilityUrl = geckoboardOptions.availability_url;
+      if (availabilityUrl) {
+        var monthAgo = moment().subtract(30, 'days').toDate();
+        var now = new Date();
+        check.getAvailabilityInInterval(monthAgo, now, function(err, data){
+          if (err) return;
+          reportAvailability(availabilityUrl, data.availability*100);
+        });
+      }
+      
+      var statusUrl = geckoboardOptions.status_url;
+      if (statusUrl && check.qos) {
+        var outages = check.qos.outages;
+        var lastDowntime, lastDowntimestamp;
+        if (outages && geckoboardOptions.send_last_downtime) {
+          lastDowntime = check.qos.outages[check.qos.outages.length-1];
+          lastDowntimestamp = lastDowntime[2] === 0 ? lastDowntime[0] : null;
         }
-        var statusUrl = geckoboardOptions.status_url;
-        if (statusUrl && check.qos) {
-          var outages = check.qos.outages;
-          var lastDowntime, lastDowntimestamp;
-          if (outages && geckoboardOptions.send_last_downtime) {
-            lastDowntime = check.qos.outages[check.qos.outages.length-1];
-            lastDowntimestamp = lastDowntime[2] === 0 ? lastDowntime[0] : null;
-          }
-          reportStatus(statusUrl, check.isUp, check.qos.responseTime, lastDowntimestamp);
-        }
-      });
-      if (last_updated_widget_url) {
-        reportLastUpdate(last_updated_widget_url);
+        reportStatus(statusUrl, check.isUp, check.qos.responseTime, lastDowntimestamp);
       }
     });
-  }, reporting_interval);
+
+    // send information about last update time
+    _.each(config.last_updated_widget_urls, function(url) {
+      reportLastUpdate(url);
+    });
+  });
+};
+
+exports.initMonitor = function() {
+  setInterval(reportToGeckoBoard, config.reporting_interval * 1000);
 };
 
 exports.initWebApp = function(options) {
