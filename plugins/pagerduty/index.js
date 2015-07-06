@@ -35,8 +35,8 @@ exports.initWebApp = function(options) {
 
     CheckEvent.on('afterInsert', function(checkEvent) {
         checkEvent.findCheck(function(findErr, check) {
-            var options = check.getPollerParam("pagerduty_options");
-            if (!options || !options.send_alerts) return;
+            var pdOptions = check.getPollerParam("pagerduty_options");
+            if (!pdOptions || !pdOptions.send_alerts) return;
             if(!check.isUp){
                 pager.create({
                     incidentKey: checkEvent._id,
