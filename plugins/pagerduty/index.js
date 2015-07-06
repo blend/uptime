@@ -1,6 +1,10 @@
-// taken from https://github.com/Samze/uptime-pagerduty
+// based on  https://github.com/Samze/uptime-pagerduty
 var CheckEvent = require('../../models/checkEvent');
 var PagerDuty = require('pagerduty');
+var fs = require('fs');
+var ejs = require('ejs');
+
+var template = fs.readFileSync(__dirname + '/views/_detailsEdit.ejs', 'utf8');
 
 //Convert to Set implementation
 var activeAlerts = [];
@@ -31,6 +35,8 @@ exports.initWebApp = function(options) {
 
     CheckEvent.on('afterInsert', function(checkEvent) {
         checkEvent.findCheck(function(findErr, check) {
+            var options = check.getPollerParam("pagerduty_options");
+            if (!options || !options.send_alerts) return;
             if(!check.isUp){
                 pager.create({
                     incidentKey: checkEvent._id,
@@ -64,5 +70,17 @@ exports.initWebApp = function(options) {
                 }
             }
         });
-  });
+    });
+
+    var dashboard = options.dashboard;
+    
+    dashboard.on('checkEdit', function(type, check, partial) {
+        var pagerduty_options = check.getPollerParam("pagerduty_options") || {};
+        partial.push(ejs.render(template, { locals: { check: check, pagerduty_options: pagerduty_options } }));
+    });
+
+    dashboard.on('populateFromDirtyCheck', function(checkDocument, dirtyCheck, type) {
+        if (!dirtyCheck.pagerduty_options) return;
+        checkDocument.setPollerParam('pagerduty_options', dirtyCheck.pagerduty_options);
+    });
 }
