@@ -39,7 +39,6 @@ function reportLastUpdate(url) {
 
 function postToGeckoboard(url, postData) {
   var postObj = { api_key: config.api_key, data: postData };
-  console.log("Posting to geckoboard", url, JSON.stringify(postData));
   request.post(url, { json: true, body: postObj }, function(err,httpResponse,body){
     if (err || httpResponse.statusCode !== 200) {
       console.error("Posting data to geckoboard failed");
@@ -50,8 +49,7 @@ function postToGeckoboard(url, postData) {
         console.log(body);
       }
     } else {
-      console.log(body);
-      console.log("geckoboard request succeeded");
+      console.log("geckoboard request succeeded:", url);
     }
   });
 }
