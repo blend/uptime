@@ -26,7 +26,9 @@ plugins:
 geckoboard:
   api_key: < geckoboard API key >
   reporting_interval: 60 # in seconds
-  update_ts_widget_urls:  # sequence of urls of text widgets to publish a 'last updated' message
+  timezone: 'America/Los_Angeles'
+  update_ts_widget_urls: # url of a text widget to publish a 'last updated' message
+    - 
 
 pagerduty:
   serviceKey: <pagerduty-service-key>
