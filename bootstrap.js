@@ -1,9 +1,23 @@
 var mongoose   = require('mongoose');
-var config     = require('config');
 var semver     = require('semver');
 
-// configure mongodb
-mongoose.connect(config.mongodb.connectionString || 'mongodb://' + config.mongodb.user + ':' + config.mongodb.password + '@' + config.mongodb.server +'/' + config.mongodb.database);
+var MONGO_USER = process.env['MONGO_USER'];
+var MONGO_PASSWORD = process.env['MONGO_PASSWORD'];
+var MONGO_HOST = process.env['MONGO_HOST'] || "localhost";
+var MONGO_PORT = process.env['MONGO_PORT'] || "27017";
+var MONGO_DB = process.env['MONGO_DB'] || "blendom";
+if (process.env.NODE_ENV === "test") {
+  MONGO_DB = "blendom-test";
+}
+
+var authRequired = !!MONGO_USER;
+var mongoUri = 'mongodb://';
+if (authRequired) {
+  mongoUri += process.env.get('MONGO_USER') + ':' + ('MONGO_PWD') + '@';
+}
+mongoUri += MONGO_HOST + ":" + MONGO_PORT + "/" + MONGO_DB;
+
+mongoose.connect(mongoUri);
 mongoose.connection.on('error', function (err) {
   console.error('MongoDB error: ' + err.message);
   console.error('Make sure a mongoDB server is running and accessible by this application');
@@ -14,7 +28,7 @@ mongoose.connection.on('open', function (err) {
     if (err) {
       if (err.name === "MongoError" && (err.errmsg === 'need to login' || err.errmsg === 'unauthorized') && !config.mongodb.connectionString) {
         console.log('Forcing MongoDB authentication');
-        mongoose.connection.db.authenticate(config.mongodb.user, config.mongodb.password, function(err) {
+        mongoose.connection.db.authenticate(MONGO_USER, MONGO_PASSWORD, function(err) {
           if (!err) return;
           console.error(err);
           process.exit(1);

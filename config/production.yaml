@@ -17,8 +17,8 @@ autoStartMonitor: true
 
 plugins:
   - ./plugins/console
-  # - ./plugins/geckoboard
-  # - ./plugins/pagerduty
+  - ./plugins/geckoboard
+  - ./plugins/pagerduty
   
 geckoboard: # make sure to set 'GECKOBOARD_API_KEY' env variable
   reporting_interval: 60 # in seconds

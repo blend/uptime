@@ -6,6 +6,10 @@ var fs = require('fs');
 var ejs = require('ejs');
 var _ = require('underscore');
 var config = require('config').geckoboard;
+var API_KEY = process.env.GECKOBOARD_API_KEY;
+if (!API_KEY) {
+  throw "Missing Geckoboard API key";
+}
 
 var template = fs.readFileSync(__dirname + '/views/_detailsEdit.ejs', 'utf8');
 
@@ -30,15 +34,8 @@ function reportAvailability(url, availability) {
   postToGeckoboard(url, postData);
 }
 
-function reportLastUpdate(url) {
-  var nowText = momentTz().tz(config.timezone).format("MMM D, h:mma");
-  var lastUpdatedText = "<span style=\"color:grey;font-size:20px\">Last updated " + nowText + "</span>";
-  var postData = { item: [ { text: lastUpdatedText, type: 0 } ] };
-  postToGeckoboard(url, postData);
-}
-
 function postToGeckoboard(url, postData) {
-  var postObj = { api_key: config.api_key, data: postData };
+  var postObj = { api_key: API_KEY, data: postData };
   request.post(url, { json: true, body: postObj }, function(err,httpResponse,body){
     if (err || httpResponse.statusCode !== 200) {
       console.error("Posting data to geckoboard failed");
@@ -82,11 +79,6 @@ function reportToGeckoBoard() {
         }
         reportStatus(statusUrl, check.isUp, check.qos.responseTime, lastDowntimestamp);
       }
-    });
-
-    // send information about last update time
-    _.each(config.last_updated_widget_urls, function(url) {
-      reportLastUpdate(url);
     });
   });
 };

@@ -3,6 +3,10 @@ var CheckEvent = require('../../models/checkEvent');
 var PagerDuty = require('pagerduty');
 var fs = require('fs');
 var ejs = require('ejs');
+var SERVICE_KEY = process.env.PAGERDUTY_SERVICE_KEY;
+if (!SERVICE_KEY) {
+  throw "Missing Pagerduty service key";
+}
 
 var template = fs.readFileSync(__dirname + '/views/_detailsEdit.ejs', 'utf8');
 

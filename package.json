@@ -36,7 +36,7 @@
     "npm": "1.2.x"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha test/lib/",
+    "test": "NODE_ENV=test node_modules/.bin/mocha test/lib/",
     "start": "node app.js"
   }
 }

@@ -1,4 +1,3 @@
-var config   = require('config').mongodb;
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 
@@ -15,7 +14,22 @@ var CheckEvent = new Schema({
 
 mongoose.model('CheckEvent', CheckEvent);
 
-mongoose.connect('mongodb://' + config.user + ':' + config.password + '@' + config.server +'/' + config.database);
+var MONGO_USER = process.env['MONGO_USER'];
+var MONGO_PASSWORD = process.env['MONGO_PASSWORD'];
+var MONGO_HOST = process.env['MONGO_HOST'] || "localhost";
+var MONGO_DB = process.env['MONGO_DB'] || "blendom";
+if (process.env.NODE_ENV === "test") {
+  MONGO_DB = "blendom-test";
+}
+var MONGO_PORT = process.env['MONGO_PORT'] || 27017;
+
+var authRequired = !!config.get('MONGO_USER');
+var mongoUri = 'mongodb://';
+if (authRequired) {
+  mongoUri += process.env.get('MONGO_USER') + ':' + ('MONGO_PWD') + '@';
+}
+mongoUri += config.get('MONGO_SET');
+mongoose.connect('mongodb://' + MONGO_USER + ':' + MONGO_PASSWORD + '@' + MONGO_HOST +'/' + MONGO_DB);
 mongoose.connection.on('error', function (err) {
   console.error('MongoDB error: ' + err.message);
   console.error('Make sure a mongoDB server is running and accessible by this application')

@@ -6,7 +6,6 @@ monitor:
   pollingInterval:        10000      # ten seconds
   timeout:                5000       # five seconds
   userAgent:              NodeUptime/3.0 (https://github.com/fzaninotto/uptime)
-  retries:                3
 
 analyzer:
   updateInterval:         60000      # one minute
@@ -19,10 +18,9 @@ plugins:
   - ./plugins/console
   # - ./plugins/geckoboard
   # - ./plugins/pagerduty
-  
-geckoboard: # make sure to set 'GECKOBOARD_API_KEY' env variable
-  reporting_interval: 60 # in seconds
-  timezone: 'America/Los_Angeles'
 
-pagerduty: # make sure to set 'PAGERDUTY_SERVICE_KEY' env variable
+geckoboard:
+  reporting_interval: 60 # in seconds
+
+pagerduty:
   autoresolve: false
