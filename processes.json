@@ -1,0 +1,11 @@
+[{
+  "name": "blendom",
+  "script": "app.js",
+  "max_restarts": "100",
+  "log_file": "/mnt/app/blendom/logs/blendom.log",
+  "error_file": "/mnt/app/blendom/logs/blendom-err.log",
+  "out_file": "/mnt/app/blendom/logs/blendom-out.log",
+  "env": {
+    "NODE_ENV": "production"
+  }  
+}]
