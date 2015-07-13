@@ -158,7 +158,6 @@ $(document).ready(function() {
   $('form select[name="check\\[type\\]"]').bind('change', function() {
     var pollerDetails = $('#pollerDetails');
     $.get('<%= route %>/pollerPartial/' + $(this).val())
-      .fail(function() { pollerDetails.html(''); })
       .done(function(html) { pollerDetails.html(html); });
   });
 

@@ -68,7 +68,9 @@ app.get('/checks', function(req, res, next) {
 });
 
 app.get('/checks/new', function(req, res) {
-  res.render('check_new', { check: new Check(), pollerCollection: app.get('pollerCollection'), info: req.flash('info') });
+  var pollerDetails = [];
+  app.emit('checkEdit', req.params.type, new Check(), pollerDetails);
+  res.render('check_new', { check: new Check(), pollerCollection: app.get('pollerCollection'), info: req.flash('info'), pollerDetails: pollerDetails.join('')});
 });
 
 app.post('/checks', function(req, res, next) {
