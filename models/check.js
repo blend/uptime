@@ -354,7 +354,14 @@ Check.methods.getSingleStatForPeriod = function(period, date, callback) {
 Check.methods.populateFromDirtyCheck = function(dirtyCheck, pollerCollection) {
   this.url = dirtyCheck.url || this.url;
   this.maxTime = dirtyCheck.maxTime || this.maxTime;
-  this.isPaused = dirtyCheck.isPaused || this.isPaused;
+  this.isPaused = (function() {
+    if (dirtyCheck.isPaused === undefined) {
+      console.log('undefined');
+      return this.isPaused;
+    }
+    console.log('toLower', dirtyCheck.isPaused.toLowerCase);
+    return dirtyCheck.isPaused.toLowerCase() === 'true';
+  }());
   this.alertTreshold = dirtyCheck.alertTreshold || this.alertTreshold;
   this.interval = dirtyCheck.interval * 1000 || this.interval;
 
